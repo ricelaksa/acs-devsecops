@@ -1,0 +1,25 @@
+name: Build and Trivy Scan
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t acs-demo:${{ github.sha }} .
+
+      - name: Trivy scan image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: acs-demo:${{ github.sha }}
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: "HIGH,CRITICAL"
